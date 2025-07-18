@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+    <persistence-unit name="BookstoreApp-ejbPU" transaction-type="JTA">
+        <jta-data-source>jdbc/bookstoredb</jta-data-source>
+        <class>entities.User</class>
+        <class>entities.Genre</class>
+        <class>entities.Book</class>
+        <class>entities.Order</class>
+        <class>entities.OrderItem</class>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <properties>
+            <!-- Don't recreate tables, use existing data -->
+            <property name="javax.persistence.schema-generation.database.action" value="none"/>
+            <property name="eclipselink.logging.level" value="INFO"/>
+            <property name="eclipselink.logging.parameters" value="true"/>
+            <property name="eclipselink.target-database" value="Derby"/>
+        </properties>
+    </persistence-unit>
+</persistence>
