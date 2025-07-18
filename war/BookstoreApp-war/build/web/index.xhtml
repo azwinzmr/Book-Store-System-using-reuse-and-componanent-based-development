@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    
+    <h:head>
+        <title>BookstoreApp - Welcome</title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </h:head>
+    
+    <h:body>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h:link value="BookstoreApp" outcome="index" styleClass="logo"/>
+                
+                <nav>
+                    <ul class="nav-links">
+                        <li><h:link value="Home" outcome="index"/></li>
+                        <li><h:link value="Books" outcome="books"/></li>
+                        
+                        <h:panelGroup rendered="#{not loginController.loggedIn}">
+                            <li><h:link value="Login" outcome="login"/></li>
+                            <li><h:link value="Register" outcome="register"/></li>
+                        </h:panelGroup>
+                        
+                        <h:panelGroup rendered="#{loginController.loggedIn}">
+                            <h:panelGroup rendered="#{loginController.admin}">
+                                <li><h:link value="Admin" outcome="admin/dashboard"/></li>
+                            </h:panelGroup>
+                            
+                            <h:panelGroup rendered="#{loginController.user}">
+                                <li><h:link value="My Orders" outcome="user/orders"/></li>
+                                <li>
+                                    <h:link value="Cart (#{orderController.cartSize})" outcome="user/cart"/>
+                                </li>
+                            </h:panelGroup>
+                            
+                            <li>
+                                <h:form style="display: inline;">
+                                    <h:commandLink value="Logout (#{loginController.currentUsername})" 
+                                                 action="#{loginController.logout}" 
+                                                 styleClass="nav-link"/>
+                                </h:form>
+                            </li>
+                        </h:panelGroup>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <h:messages globalOnly="true" styleClass="alert alert-info"/>
+            
+            <h1 class="page-title">Welcome to BookstoreApp</h1>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Your Online Bookstore</h2>
+                </div>
+                
+                <p>Discover amazing books from various genres. Browse our collection and find your next great read!</p>
+                
+                <h:panelGroup rendered="#{not loginController.loggedIn}">
+                    <p><strong>New here?</strong> <h:link value="Create an account" outcome="register"/> to start shopping.</p>
+                    <p><strong>Already have an account?</strong> <h:link value="Login here" outcome="login"/>.</p>
+                </h:panelGroup>
+                
+                <h:panelGroup rendered="#{loginController.loggedIn}">
+                    <h:panelGroup rendered="#{loginController.admin}">
+                        <p><strong>Welcome Admin!</strong> Manage your bookstore from the <h:link value="Admin Dashboard" outcome="admin/dashboard"/>.</p>
+                    </h:panelGroup>
+                    
+                    <h:panelGroup rendered="#{loginController.user}">
+                        <p><strong>Welcome back, #{loginController.currentUsername}!</strong> Start browsing our <h:link value="book collection" outcome="books"/>.</p>
+                    </h:panelGroup>
+                </h:panelGroup>
+                
+                <div style="margin-top: 2rem;">
+                    <h:link outcome="books" styleClass="btn btn-primary">Browse Books</h:link>
+                </div>
+            </div>
+            
+            <!-- Featured Sections -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Book Genres</h2>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <h3>Fiction</h3>
+                        <p>Novels and stories that transport you to different worlds</p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <h3>Non-Fiction</h3>
+                        <p>Real stories, biographies, and educational content</p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <h3>Science &amp; Technology</h3>
+                        <p>Latest discoveries and technological advances</p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <h3>Business &amp; Finance</h3>
+                        <p>Strategic insights and financial wisdom</p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <h3>Health &amp; Wellness</h3>
+                        <p>Guides for a healthier and happier life</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 BookstoreApp. Simple bookstore for academic project.</p>
+        </footer>
+    </h:body>
+</html>

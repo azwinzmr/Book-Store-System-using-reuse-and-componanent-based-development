@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    
+    <h:head>
+        <title>BookstoreApp - Books</title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <f:metadata>
+            <f:viewAction action="#{bookController.loadBooks}"/>
+        </f:metadata>
+    </h:head>
+    
+    <h:body>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h:link value="BookstoreApp" outcome="index" styleClass="logo"/>
+                
+                <nav>
+                    <ul class="nav-links">
+                        <li><h:link value="Home" outcome="index"/></li>
+                        <li><h:link value="Books" outcome="books"/></li>
+                        
+                        <h:panelGroup rendered="#{not loginController.loggedIn}">
+                            <li><h:link value="Login" outcome="login"/></li>
+                            <li><h:link value="Register" outcome="register"/></li>
+                        </h:panelGroup>
+                        
+                        <h:panelGroup rendered="#{loginController.loggedIn}">
+                            <h:panelGroup rendered="#{loginController.admin}">
+                                <li><h:link value="Admin" outcome="admin/dashboard"/></li>
+                            </h:panelGroup>
+                            
+                            <h:panelGroup rendered="#{loginController.user}">
+                                <li><h:link value="My Orders" outcome="user/orders"/></li>
+                                <li>
+                                    <h:link value="Cart (#{orderController.cartSize})" outcome="user/cart"/>
+                                </li>
+                            </h:panelGroup>
+                            
+                            <li>
+                                <h:form style="display: inline;">
+                                    <h:commandLink value="Logout (#{loginController.currentUsername})" 
+                                                 action="#{loginController.logout}" 
+                                                 styleClass="nav-link"/>
+                                </h:form>
+                            </li>
+                        </h:panelGroup>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <h:messages globalOnly="true"/>
+            
+            <h1 class="page-title">Book Catalog</h1>
+            
+            <!-- Search and Filter -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Search &amp; Filter Books</h2>
+                </div>
+                
+                <h:form>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <h:outputLabel for="searchTitle" value="Search by Title:" styleClass="form-label"/>
+                            <h:inputText id="searchTitle" 
+                                       value="#{bookController.searchTitle}" 
+                                       styleClass="form-control"
+                                       title="Enter book title to search"/>
+                            <small style="color: #6c757d;">Enter book title to search</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <h:outputLabel for="genreFilter" value="Filter by Genre:" styleClass="form-label"/>
+                            <h:selectOneMenu id="genreFilter" 
+                                           value="#{bookController.selectedGenreId}" 
+                                           styleClass="form-control">
+                                <f:selectItem itemLabel="All Genres" itemValue="#{null}"/>
+                                <f:selectItems value="#{bookController.genres}" 
+                                             var="genre" 
+                                             itemLabel="#{genre.genreName}" 
+                                             itemValue="#{genre.id}"/>
+                            </h:selectOneMenu>
+                        </div>
+                        
+                        <div class="form-group" style="display: flex; align-items: end; gap: 0.5rem;">
+                            <h:commandButton value="Search" 
+                                           action="#{bookController.searchBooks}" 
+                                           styleClass="btn btn-primary"/>
+                            <h:commandButton value="Filter" 
+                                           action="#{bookController.filterByGenre}" 
+                                           styleClass="btn btn-secondary"/>
+                            <h:commandButton value="Clear" 
+                                           action="#{bookController.clearSearch}" 
+                                           styleClass="btn btn-secondary"/>
+                        </div>
+                    </div>
+                </h:form>
+            </div>
+            
+            <!-- Books Grid -->
+            <h:panelGroup rendered="#{not empty bookController.books}">
+                <div class="book-grid">
+                    <ui:repeat value="#{bookController.books}" var="book">
+                        <div class="book-card">
+                            <h3 class="book-title">#{book.title}</h3>
+                            <p class="book-author">by #{book.author}</p>
+                            <p class="book-price">$#{book.price}</p>
+                            <span class="book-genre">#{book.genre.genreName}</span>
+                            
+                            <h:panelGroup rendered="#{book.available}">
+                                <p class="book-stock">#{book.stockQuantity} in stock</p>
+                            </h:panelGroup>
+                            
+                            <h:panelGroup rendered="#{not book.available}">
+                                <p class="book-stock out-of-stock">Out of Stock</p>
+                            </h:panelGroup>
+                            
+                            <!-- Add to Cart Button (Only for logged in users) -->
+                            <h:panelGroup rendered="#{loginController.user and book.available}">
+                                <h:form style="margin-top: 1rem;">
+                                    <h:commandButton value="Add to Cart" 
+                                                   action="#{orderController.addToCart(book)}" 
+                                                   styleClass="btn btn-success"
+                                                   style="width: 100%;"/>
+                                </h:form>
+                            </h:panelGroup>
+                            
+                            <!-- Login Required Message -->
+                            <h:panelGroup rendered="#{not loginController.loggedIn and book.available}">
+                                <div style="margin-top: 1rem; text-align: center;">
+                                    <h:link value="Login to Purchase" outcome="login" styleClass="btn btn-primary" style="width: 100%; text-decoration: none;"/>
+                                </div>
+                            </h:panelGroup>
+                            
+                            <!-- Out of Stock Button -->
+                            <h:panelGroup rendered="#{not book.available}">
+                                <button disabled="disabled" class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">
+                                    Out of Stock
+                                </button>
+                            </h:panelGroup>
+                        </div>
+                    </ui:repeat>
+                </div>
+            </h:panelGroup>
+            
+            <!-- No Books Found Message -->
+            <h:panelGroup rendered="#{empty bookController.books}">
+                <div class="card">
+                    <div style="text-align: center; padding: 2rem;">
+                        <h3>No books found</h3>
+                        <p>Try adjusting your search criteria or browse all books.</p>
+                        <h:form>
+                            <h:commandButton value="Show All Books" 
+                                           action="#{bookController.loadBooks}" 
+                                           styleClass="btn btn-primary"/>
+                        </h:form>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 BookstoreApp. Simple bookstore for academic project.</p>
+        </footer>
+    </h:body>
+</html>

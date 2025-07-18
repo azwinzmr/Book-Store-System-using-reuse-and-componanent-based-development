@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    
+    <h:head>
+        <title>BookstoreApp - Admin Dashboard</title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <f:metadata>
+            <f:viewAction action="#{adminController.loadDashboardData}"/>
+        </f:metadata>
+    </h:head>
+    
+    <h:body>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h:link value="BookstoreApp" outcome="/index" styleClass="logo"/>
+                
+                <nav>
+                    <ul class="nav-links">
+                        <li><h:link value="Home" outcome="/index"/></li>
+                        <li><h:link value="Books" outcome="/books"/></li>
+                        <li><h:link value="Manage Books" outcome="books"/></li>
+                        <li><h:link value="Orders" outcome="orders"/></li>
+                        <li>
+                            <h:form style="display: inline;">
+                                <h:commandLink value="Logout (#{loginController.currentUsername})" 
+                                             action="#{loginController.logout}" 
+                                             styleClass="nav-link"/>
+                            </h:form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <h:messages globalOnly="true"/>
+            
+            <h1 class="page-title">Admin Dashboard</h1>
+            
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">#{adminController.totalBooks}</span>
+                    <div class="stat-label">Total Books</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">#{adminController.totalUsers}</span>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">#{adminController.totalOrders}</span>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">$#{adminController.totalRevenue}</span>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Quick Actions</h2>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                    <div style="text-align: center; padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
+                        <h3>Manage Books</h3>
+                        <p>Add, edit, or remove books from inventory</p>
+                        <h:link value="Manage Books" outcome="books" styleClass="btn btn-primary"/>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
+                        <h3>View Orders</h3>
+                        <p>Monitor and manage customer orders</p>
+                        <h:link value="View Orders" outcome="orders" styleClass="btn btn-success"/>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
+                        <h3>User Management</h3>
+                        <p>View and manage user accounts</p>
+                        <h:link value="Manage Users" outcome="users" styleClass="btn btn-secondary"/>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add New Genre -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Add New Genre</h2>
+                </div>
+                
+                <h:form>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <h:outputLabel for="genreName" value="Genre Name:" styleClass="form-label"/>
+                            <h:inputText id="genreName" 
+                                       value="#{adminController.newGenre.genreName}" 
+                                       required="true"
+                                       requiredMessage="Genre name is required"
+                                       styleClass="form-control"
+                                       title="Enter genre name"/>
+                            <h:message for="genreName" styleClass="alert alert-error"/>
+                            <small style="color: #6c757d;">Enter a new genre name (e.g., Mystery, Romance, Science Fiction)</small>
+                        </div>
+                        
+                        <div class="form-group" style="display: flex; align-items: end;">
+                            <h:commandButton value="Add Genre" 
+                                           action="#{adminController.addGenre}" 
+                                           styleClass="btn btn-success"/>
+                        </div>
+                    </div>
+                </h:form>
+                
+                <!-- Current Genres -->
+                <h:panelGroup rendered="#{not empty adminController.genres}">
+                    <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Current Genres:</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        <ui:repeat value="#{adminController.genres}" var="genre">
+                            <span class="book-genre">#{genre.genreName}</span>
+                        </ui:repeat>
+                    </div>
+                </h:panelGroup>
+            </div>
+            
+            <!-- Recent Orders -->
+            <h:panelGroup rendered="#{not empty adminController.orders}">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Recent Orders</h2>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{adminController.orders}" var="order" varStatus="status">
+                                    <h:panelGroup rendered="#{status.index lt 10}">
+                                        <tr>
+                                            <td><strong>##{order.id}</strong></td>
+                                            <td>#{order.user.username}</td>
+                                            <td>
+                                                <h:outputText value="#{order.orderDate}">
+                                                    <f:convertDateTime pattern="MMM dd, yyyy HH:mm"/>
+                                                </h:outputText>
+                                            </td>
+                                            <td>#{order.totalItems} items</td>
+                                            <td><strong>$#{order.totalAmount}</strong></td>
+                                            <td>
+                                                <span style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; 
+                                                           background-color: #{order.status eq 'COMPLETED' ? '#d4edda' : '#f8d7da'}; 
+                                                           color: #{order.status eq 'COMPLETED' ? '#155724' : '#721c24'};">
+                                                    #{order.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </h:panelGroup>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <h:link value="View All Orders" outcome="orders" styleClass="btn btn-primary"/>
+                    </div>
+                </div>
+            </h:panelGroup>
+            
+            <!-- Low Stock Alert -->
+            <h:panelGroup rendered="#{not empty adminController.books}">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Inventory Alert</h2>
+                    </div>
+                    
+                    <h4>Books with Low Stock (≤ 5 items):</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Genre</th>
+                                    <th>Stock</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{adminController.books}" var="book">
+                                    <h:panelGroup rendered="#{book.stockQuantity le 5}">
+                                        <tr style="#{book.stockQuantity eq 0 ? 'background-color: #f8d7da;' : book.stockQuantity le 2 ? 'background-color: #fff3cd;' : ''}">
+                                            <td><strong>#{book.title}</strong></td>
+                                            <td>#{book.author}</td>
+                                            <td>#{book.genre.genreName}</td>
+                                            <td>
+                                                <strong style="color: #{book.stockQuantity eq 0 ? '#dc3545' : book.stockQuantity le 2 ? '#856404' : '#28a745'};">
+                                                    #{book.stockQuantity}
+                                                </strong>
+                                            </td>
+                                            <td>$#{book.price}</td>
+                                        </tr>
+                                    </h:panelGroup>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 BookstoreApp. Simple bookstore for academic project.</p>
+        </footer>
+    </h:body>
+</html>

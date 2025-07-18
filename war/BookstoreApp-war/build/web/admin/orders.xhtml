@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    
+    <h:head>
+        <title>BookstoreApp - Manage Orders</title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <f:metadata>
+            <f:viewAction action="#{adminController.loadAllOrders}"/>
+        </f:metadata>
+    </h:head>
+    
+    <h:body>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h:link value="BookstoreApp" outcome="/index" styleClass="logo"/>
+                
+                <nav>
+                    <ul class="nav-links">
+                        <li><h:link value="Home" outcome="/index"/></li>
+                        <li><h:link value="Dashboard" outcome="dashboard"/></li>
+                        <li><h:link value="Books" outcome="books"/></li>
+                        <li><h:link value="Users" outcome="users"/></li>
+                        <li>
+                            <h:form style="display: inline;">
+                                <h:commandLink value="Logout (#{loginController.currentUsername})" 
+                                             action="#{loginController.logout}" 
+                                             styleClass="nav-link"/>
+                            </h:form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <h:messages globalOnly="true"/>
+            
+            <h1 class="page-title">Order Management</h1>
+            
+            <!-- Order Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">#{adminController.orders.size()}</span>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">$#{adminController.totalRevenue}</span>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                
+                <div class="stat-card">
+                    <ui:repeat value="#{adminController.orders}" var="order" varStatus="status">
+                        <h:panelGroup rendered="#{status.first}">
+                            <span class="stat-number">
+                                #{adminController.orders.stream().filter(o -> o.status.equals('COMPLETED')).count()}
+                            </span>
+                            <div class="stat-label">Completed Orders</div>
+                        </h:panelGroup>
+                    </ui:repeat>
+                </div>
+                
+                <div class="stat-card">
+                    <ui:repeat value="#{adminController.orders}" var="order" varStatus="status">
+                        <h:panelGroup rendered="#{status.first}">
+                            <span class="stat-number">
+                                #{adminController.orders.stream().filter(o -> o.status.equals('PENDING')).count()}
+                            </span>
+                            <div class="stat-label">Pending Orders</div>
+                        </h:panelGroup>
+                    </ui:repeat>
+                </div>
+            </div>
+            
+            <!-- Orders List -->
+            <h:panelGroup rendered="#{not empty adminController.orders}">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">All Orders (#{adminController.orders.size()} orders)</h2>
+                    </div>
+                    
+                    <ui:repeat value="#{adminController.orders}" var="order">
+                        <div style="border-bottom: 1px solid #e9ecef; padding: 1.5rem 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                <div>
+                                    <h3 style="margin: 0; color: #333;">Order ##{order.id}</h3>
+                                    <p style="margin: 0.25rem 0; color: #6c757d;">
+                                        Customer: <strong>#{order.user.username}</strong> (#{order.user.email})
+                                    </p>
+                                    <p style="margin: 0.25rem 0; color: #6c757d;">
+                                        <h:outputText value="#{order.orderDate}">
+                                            <f:convertDateTime pattern="MMMM dd, yyyy 'at' HH:mm"/>
+                                        </h:outputText>
+                                    </p>
+                                </div>
+                                
+                                <div style="text-align: right;">
+                                    <div style="font-size: 1.25rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">
+                                        $#{order.totalAmount}
+                                    </div>
+                                    
+                                    <!-- Status Update -->
+                                    <h:form style="display: inline;">
+                                        <h:selectOneMenu value="#{order.status}" 
+                                                       style="padding: 0.25rem; border-radius: 4px; border: 1px solid #ced4da;">
+                                            <f:selectItem itemLabel="PENDING" itemValue="PENDING"/>
+                                            <f:selectItem itemLabel="COMPLETED" itemValue="COMPLETED"/>
+                                            <f:selectItem itemLabel="CANCELLED" itemValue="CANCELLED"/>
+                                        </h:selectOneMenu>
+                                        <h:commandButton value="Update" 
+                                                       action="#{adminController.updateOrderStatus(order, order.status)}" 
+                                                       styleClass="btn btn-sm btn-primary"
+                                                       style="margin-left: 5px;"/>
+                                    </h:form>
+                                </div>
+                            </div>
+                            
+                            <!-- Order Items -->
+                            <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem;">
+                                <h4 style="margin: 0 0 1rem 0; color: #495057;">Order Details (#{order.totalItems} items)</h4>
+                                
+                                <div class="table-responsive">
+                                    <table class="table" style="margin: 0; background: white;">
+                                        <thead>
+                                            <tr>
+                                                <th>Book</th>
+                                                <th>Author</th>
+                                                <th>Genre</th>
+                                                <th>Price</th>
+                                                <th>Quantity</th>
+                                                <th>Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <ui:repeat value="#{order.orderItems}" var="item">
+                                                <tr>
+                                                    <td><strong>#{item.book.title}</strong></td>
+                                                    <td>#{item.book.author}</td>
+                                                    <td>#{item.book.genre.genreName}</td>
+                                                    <td>$#{item.price}</td>
+                                                    <td>#{item.quantity}</td>
+                                                    <td><strong>$#{item.subtotal}</strong></td>
+                                                </tr>
+                                            </ui:repeat>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr style="background: #e9ecef; font-weight: bold;">
+                                                <td colspan="5" style="text-align: right;">Total:</td>
+                                                <td><strong>$#{order.totalAmount}</strong></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </div>
+            </h:panelGroup>
+            
+            <!-- No Orders Message -->
+            <h:panelGroup rendered="#{empty adminController.orders}">
+                <div class="card">
+                    <div style="text-align: center; padding: 3rem;">
+                        <h3>No orders found</h3>
+                        <p>No customer orders have been placed yet.</p>
+                        <h:link value="Back to Dashboard" outcome="dashboard" styleClass="btn btn-primary"/>
+                    </div>
+                </div>
+            </h:panelGroup>
+            
+            <!-- Back to Dashboard -->
+            <div style="text-align: center; margin-top: 2rem;">
+                <h:link value="Back to Dashboard" outcome="dashboard" styleClass="btn btn-secondary"/>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 BookstoreApp. Simple bookstore for academic project.</p>
+        </footer>
+    </h:body>
+</html>

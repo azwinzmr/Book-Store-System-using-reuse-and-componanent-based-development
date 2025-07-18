@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    
+    <h:head>
+        <title>BookstoreApp - Manage Books</title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <f:metadata>
+            <f:viewAction action="#{bookController.loadBooks}"/>
+            <f:viewAction action="#{adminController.loadBooks}"/>
+        </f:metadata>
+    </h:head>
+    
+    <h:body>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h:link value="BookstoreApp" outcome="/index" styleClass="logo"/>
+                
+                <nav>
+                    <ul class="nav-links">
+                        <li><h:link value="Home" outcome="/index"/></li>
+                        <li><h:link value="Dashboard" outcome="dashboard"/></li>
+                        <li><h:link value="Orders" outcome="orders"/></li>
+                        <li><h:link value="Users" outcome="users"/></li>
+                        <li>
+                            <h:form style="display: inline;">
+                                <h:commandLink value="Logout (#{loginController.currentUsername})" 
+                                             action="#{loginController.logout}" 
+                                             styleClass="nav-link"/>
+                            </h:form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <h:messages globalOnly="true"/>
+            
+            <h1 class="page-title">Manage Books</h1>
+            
+            <!-- Add New Book -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Add New Book</h2>
+                </div>
+                
+                <h:form>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <h:outputLabel for="title" value="Title:" styleClass="form-label"/>
+                            <h:inputText id="title" 
+                                       value="#{bookController.newBook.title}" 
+                                       required="true"
+                                       requiredMessage="Title is required"
+                                       styleClass="form-control"
+                                       title="Enter book title"/>
+                            <h:message for="title" styleClass="alert alert-error"/>
+                            <small style="color: #6c757d;">Enter the book title</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <h:outputLabel for="author" value="Author:" styleClass="form-label"/>
+                            <h:inputText id="author" 
+                                       value="#{bookController.newBook.author}" 
+                                       required="true"
+                                       requiredMessage="Author is required"
+                                       styleClass="form-control"
+                                       title="Enter author name"/>
+                            <h:message for="author" styleClass="alert alert-error"/>
+                            <small style="color: #6c757d;">Enter the author's name</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <h:outputLabel for="price" value="Price ($):" styleClass="form-label"/>
+                            <h:inputText id="price" 
+                                       value="#{bookController.newBook.price}" 
+                                       required="true"
+                                       requiredMessage="Price is required"
+                                       styleClass="form-control"
+                                       title="Enter price (e.g., 25.99)">
+                                <f:convertNumber type="currency" currencySymbol=""/>
+                            </h:inputText>
+                            <h:message for="price" styleClass="alert alert-error"/>
+                            <small style="color: #6c757d;">Enter price (e.g., 25.99)</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <h:outputLabel for="stock" value="Stock Quantity:" styleClass="form-label"/>
+                            <h:inputText id="stock" 
+                                       value="#{bookController.newBook.stockQuantity}" 
+                                       required="true"
+                                       requiredMessage="Stock quantity is required"
+                                       styleClass="form-control"
+                                       title="Enter stock quantity">
+                                <f:convertNumber integerOnly="true"/>
+                            </h:inputText>
+                            <h:message for="stock" styleClass="alert alert-error"/>
+                            <small style="color: #6c757d;">Enter number of books in stock</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <h:outputLabel for="genre" value="Genre:" styleClass="form-label"/>
+                            <h:selectOneMenu id="genre" 
+                                           value="#{bookController.selectedGenreId}" 
+                                           required="true"
+                                           requiredMessage="Please select a genre"
+                                           styleClass="form-control">
+                                <f:selectItem itemLabel="Select Genre" itemValue="#{null}"/>
+                                <f:selectItems value="#{bookController.genres}" 
+                                             var="genre" 
+                                             itemLabel="#{genre.genreName}" 
+                                             itemValue="#{genre.id}"/>
+                            </h:selectOneMenu>
+                            <h:message for="genre" styleClass="alert alert-error"/>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <h:commandButton value="Add Book" 
+                                       action="#{bookController.addBook}" 
+                                       styleClass="btn btn-success"/>
+                    </div>
+                </h:form>
+            </div>
+            
+            <!-- Books Management -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Current Inventory (#{adminController.books.size()} books)</h2>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Genre</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ui:repeat value="#{adminController.books}" var="book">
+                                <tr>
+                                    <td><strong>#{book.title}</strong></td>
+                                    <td>#{book.author}</td>
+                                    <td>#{book.genre.genreName}</td>
+                                    <td>
+                                        <h:form style="display: inline;">
+                                            <h:inputText value="#{book.price}" 
+                                                       style="width: 80px; text-align: center;">
+                                                <f:convertNumber type="currency" currencySymbol=""/>
+                                            </h:inputText>
+                                            <h:commandButton value="Update" 
+                                                           action="#{adminController.updateBookPrice(book, book.price)}" 
+                                                           styleClass="btn btn-sm btn-primary"
+                                                           style="margin-left: 5px;"/>
+                                        </h:form>
+                                    </td>
+                                    <td>
+                                        <h:form style="display: inline;">
+                                            <h:inputText value="#{book.stockQuantity}" 
+                                                       style="width: 60px; text-align: center;">
+                                                <f:convertNumber integerOnly="true"/>
+                                            </h:inputText>
+                                            <h:commandButton value="Update" 
+                                                           action="#{adminController.updateBookStock(book, book.stockQuantity)}" 
+                                                           styleClass="btn btn-sm btn-primary"
+                                                           style="margin-left: 5px;"/>
+                                        </h:form>
+                                    </td>
+                                    <td>
+                                        <h:form style="display: inline;">
+                                            <h:commandButton value="Delete" 
+                                                           action="#{adminController.deleteBook(book)}" 
+                                                           styleClass="btn btn-sm btn-danger"
+                                                           onclick="return confirm('Are you sure you want to delete this book?')"/>
+                                        </h:form>
+                                    </td>
+                                </tr>
+                            </ui:repeat>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 BookstoreApp. Simple bookstore for academic project.</p>
+        </footer>
+    </h:body>
+</html>

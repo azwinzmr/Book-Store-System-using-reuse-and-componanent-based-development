@@ -1,0 +1,287 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    
+    <h:head>
+        <title>BookstoreApp - Manage Users</title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <f:metadata>
+            <f:viewAction action="#{adminController.loadUsers}"/>
+        </f:metadata>
+    </h:head>
+    
+    <h:body>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h:link value="BookstoreApp" outcome="/index" styleClass="logo"/>
+                
+                <nav>
+                    <ul class="nav-links">
+                        <li><h:link value="Home" outcome="/index"/></li>
+                        <li><h:link value="Dashboard" outcome="dashboard"/></li>
+                        <li><h:link value="Books" outcome="books"/></li>
+                        <li><h:link value="Orders" outcome="orders"/></li>
+                        <li>
+                            <h:form style="display: inline;">
+                                <h:commandLink value="Logout (#{loginController.currentUsername})" 
+                                             action="#{loginController.logout}" 
+                                             styleClass="nav-link"/>
+                            </h:form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <h:messages globalOnly="true"/>
+            
+            <h1 class="page-title">User Management</h1>
+            
+            <!-- User Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">#{adminController.totalUsers}</span>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">#{adminController.adminUsersCount}</span>
+                    <div class="stat-label">Admin Users</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">#{adminController.regularUsersCount}</span>
+                    <div class="stat-label">Regular Users</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">#{adminController.totalOrders}</span>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+            </div>
+            
+            <!-- Admin Tools -->
+            <div class="card" style="margin-bottom: 1rem;">
+                <div class="card-header">
+                    <h2 class="card-title">Admin Tools</h2>
+                </div>
+                <div style="padding: 1rem;">
+                    <h:form style="display: inline-block; margin-right: 1rem;">
+                        <h:commandButton value="Refresh Users" 
+                                       action="#{adminController.loadUsers}" 
+                                       styleClass="btn btn-primary"/>
+                    </h:form>
+                    <h:form style="display: inline-block;">
+                        <h:commandButton value="Create Admin User" 
+                                       action="#{adminController.createAdminManually}" 
+                                       styleClass="btn btn-success"
+                                       onclick="return confirm('Create a new admin user with username: admin and password: admin123?')"/>
+                    </h:form>
+                </div>
+            </div>
+            
+            <!-- Users List -->
+            <h:panelGroup rendered="#{not empty adminController.users}">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">All Users (#{adminController.totalUsers} users)</h2>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Registration Date</th>
+                                    <th>Orders Count</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{adminController.users}" var="user">
+                                    <tr style="#{user.role eq 'ADMIN' ? 'background-color: #e9f7ef;' : ''}">
+                                        <td><strong>#{user.id}</strong></td>
+                                        <td>
+                                            <strong>#{user.username}</strong>
+                                            <h:panelGroup rendered="#{user.role eq 'ADMIN'}">
+                                                <br/><small style="color: #28a745; font-weight: bold;">ADMIN</small>
+                                            </h:panelGroup>
+                                        </td>
+                                        <td>#{user.email}</td>
+                                        <td>
+                                            <span style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; font-weight: 500;
+                                                       background-color: #{user.role eq 'ADMIN' ? '#d4edda' : '#e2e3e5'}; 
+                                                       color: #{user.role eq 'ADMIN' ? '#155724' : '#495057'};">
+                                                #{user.role}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <h:panelGroup rendered="#{user.createdDate != null}">
+                                                <h:outputText value="#{user.createdDate}">
+                                                    <f:convertDateTime pattern="MMM dd, yyyy"/>
+                                                </h:outputText>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{user.createdDate == null}">
+                                                <span style="color: #6c757d;">Not set</span>
+                                            </h:panelGroup>
+                                        </td>
+                                        <td>
+                                            <h:panelGroup rendered="#{user.orders != null and not empty user.orders}">
+                                                <strong>#{user.orders.size()}</strong> orders
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{user.orders == null or empty user.orders}">
+                                                <span style="color: #6c757d;">No orders</span>
+                                            </h:panelGroup>
+                                        </td>
+                                        <td>
+                                            <h:panelGroup rendered="#{not user.admin}">
+                                                <h:form style="display: inline;">
+                                                    <h:commandButton value="Delete" 
+                                                                   action="#{adminController.deleteUser(user)}" 
+                                                                   styleClass="btn btn-sm btn-danger"
+                                                                   onclick="return confirm('Are you sure you want to delete user: #{user.username}? This action cannot be undone.')"/>
+                                                </h:form>
+                                            </h:panelGroup>
+                                            
+                                            <h:panelGroup rendered="#{user.admin}">
+                                                <span style="color: #6c757d; font-style: italic;">Protected</span>
+                                            </h:panelGroup>
+                                        </td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Admin Users Only Section -->
+                <h:panelGroup rendered="#{adminController.adminUsersCount > 0}">
+                    <div class="card">
+                        <div class="card-header" style="background-color: #d4edda;">
+                            <h2 class="card-title" style="color: #155724;">Admin Users Only (#{adminController.adminUsersCount})</h2>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Protection Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <ui:repeat value="#{adminController.adminUsers}" var="adminUser">
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td><strong>#{adminUser.username}</strong></td>
+                                            <td>#{adminUser.email}</td>
+                                            <td>
+                                                <span style="color: #28a745; font-weight: 500;">Active Admin</span>
+                                            </td>
+                                            <td>
+                                                <span style="color: #dc3545; font-weight: 500;">Delete Protected</span>
+                                            </td>
+                                        </tr>
+                                    </ui:repeat>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </h:panelGroup>
+                
+                <!-- Regular Users Section -->
+                <h:panelGroup rendered="#{adminController.regularUsersCount > 0}">
+                    <div class="card">
+                        <div class="card-header" style="background-color: #e2e3e5;">
+                            <h2 class="card-title" style="color: #495057;">Regular Users (#{adminController.regularUsersCount})</h2>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Orders</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <ui:repeat value="#{adminController.regularUsers}" var="regularUser">
+                                        <tr>
+                                            <td><strong>#{regularUser.username}</strong></td>
+                                            <td>#{regularUser.email}</td>
+                                            <td>
+                                                <h:panelGroup rendered="#{regularUser.orders != null and not empty regularUser.orders}">
+                                                    #{regularUser.orders.size()} orders
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{regularUser.orders == null or empty regularUser.orders}">
+                                                    <span style="color: #6c757d;">No orders</span>
+                                                </h:panelGroup>
+                                            </td>
+                                            <td>
+                                                <h:panelGroup rendered="#{regularUser.orders != null and not empty regularUser.orders}">
+                                                    <span style="color: #28a745; font-weight: 500;">Active Customer</span>
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{regularUser.orders == null or empty regularUser.orders}">
+                                                    <span style="color: #6c757d;">New User</span>
+                                                </h:panelGroup>
+                                            </td>
+                                            <td>
+                                                <h:form style="display: inline;">
+                                                    <h:commandButton value="Delete" 
+                                                                   action="#{adminController.deleteUser(regularUser)}" 
+                                                                   styleClass="btn btn-sm btn-danger"
+                                                                   onclick="return confirm('Are you sure you want to delete user: #{regularUser.username}?')"/>
+                                                </h:form>
+                                            </td>
+                                        </tr>
+                                    </ui:repeat>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </h:panelGroup>
+            </h:panelGroup>
+            
+            <!-- No Users Message -->
+            <h:panelGroup rendered="#{empty adminController.users}">
+                <div class="card">
+                    <div style="text-align: center; padding: 3rem;">
+                        <h3>No users found</h3>
+                        <p>No users have registered yet.</p>
+                        <h:form style="margin-top: 1rem;">
+                            <h:commandButton value="Create Admin User" 
+                                           action="#{adminController.createAdminManually}" 
+                                           styleClass="btn btn-primary"
+                                           style="margin-right: 1rem;"/>
+                        </h:form>
+                        <h:link value="Back to Dashboard" outcome="dashboard" styleClass="btn btn-secondary"/>
+                    </div>
+                </div>
+            </h:panelGroup>
+            
+            <!-- Back to Dashboard -->
+            <div style="text-align: center; margin-top: 2rem;">
+                <h:link value="Back to Dashboard" outcome="dashboard" styleClass="btn btn-secondary"/>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 BookstoreApp. Simple bookstore for academic project.</p>
+        </footer>
+    </h:body>
+</html>

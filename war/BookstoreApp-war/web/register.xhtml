@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    
+    <h:head>
+        <title>BookstoreApp - Register</title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </h:head>
+    
+    <h:body>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h:link value="BookstoreApp" outcome="index" styleClass="logo"/>
+                
+                <nav>
+                    <ul class="nav-links">
+                        <li><h:link value="Home" outcome="index"/></li>
+                        <li><h:link value="Books" outcome="books"/></li>
+                        <li><h:link value="Login" outcome="login"/></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <h1 class="page-title">Create Account</h1>
+            
+            <div style="max-width: 400px; margin: 0 auto;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Join BookstoreApp</h2>
+                    </div>
+                    
+                    <h:messages globalOnly="true"/>
+                    
+                    <h:form>
+                        <div class="form-group">
+                            <h:outputLabel for="username" value="Username:" styleClass="form-label"/>
+                            <h:inputText id="username" 
+                                       value="#{registrationController.username}" 
+                                       required="true"
+                                       requiredMessage="Username is required"
+                                       styleClass="form-control"
+                                       title="Choose a username">
+                                <f:validateLength minimum="3" maximum="50"/>
+                            </h:inputText>
+                            <h:message for="username" styleClass="alert alert-error"/>
+                            <small style="color: #6c757d;">Must be at least 3 characters long</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <h:outputLabel for="email" value="Email:" styleClass="form-label"/>
+                            <h:inputText id="email" 
+                                       value="#{registrationController.email}" 
+                                       required="true"
+                                       requiredMessage="Email is required"
+                                       styleClass="form-control"
+                                       title="Enter your email address">
+                                <f:validateRegex pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"/>
+                            </h:inputText>
+                            <h:message for="email" styleClass="alert alert-error"/>
+                            <small style="color: #6c757d;">Enter a valid email address</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <h:outputLabel for="password" value="Password:" styleClass="form-label"/>
+                            <h:inputSecret id="password" 
+                                         value="#{registrationController.password}" 
+                                         required="true"
+                                         requiredMessage="Password is required"
+                                         styleClass="form-control"
+                                         title="Choose a password">
+                                <f:validateLength minimum="6"/>
+                            </h:inputSecret>
+                            <h:message for="password" styleClass="alert alert-error"/>
+                            <small style="color: #6c757d;">Must be at least 6 characters long</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <h:outputLabel for="confirmPassword" value="Confirm Password:" styleClass="form-label"/>
+                            <h:inputSecret id="confirmPassword" 
+                                         value="#{registrationController.confirmPassword}" 
+                                         required="true"
+                                         requiredMessage="Please confirm your password"
+                                         styleClass="form-control"
+                                         title="Re-enter your password"/>
+                            <h:message for="confirmPassword" styleClass="alert alert-error"/>
+                            <small style="color: #6c757d;">Re-enter the same password</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <h:commandButton value="Create Account" 
+                                           action="#{registrationController.register}" 
+                                           styleClass="btn btn-primary"
+                                           style="width: 100%;"/>
+                        </div>
+                    </h:form>
+                    
+                    <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e9ecef;">
+                        <p>Already have an account? <h:link value="Login here" outcome="login" style="color: #667eea; text-decoration: none; font-weight: 500;"/></p>
+                        <p><h:link value="← Back to Home" outcome="index" style="color: #6c757d; text-decoration: none;"/></p>
+                    </div>
+                </div>
+                
+                <!-- Registration Info -->
+                <div class="card" style="margin-top: 1rem; background: #cce7ff;">
+                    <div class="card-header">
+                        <h3 class="card-title" style="font-size: 1.1rem;">Account Benefits</h3>
+                    </div>
+                    
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li>Browse and purchase books</li>
+                        <li>Track your order history</li>
+                        <li>Manage your shopping cart</li>
+                        <li>Fast and secure checkout</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 BookstoreApp. Simple bookstore for academic project.</p>
+        </footer>
+    </h:body>
+</html>
