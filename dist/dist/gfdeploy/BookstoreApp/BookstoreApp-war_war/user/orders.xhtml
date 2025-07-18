@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    
+    <h:head>
+        <title>BookstoreApp - My Orders</title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <f:metadata>
+            <f:viewAction action="#{orderController.loadUserOrders}"/>
+        </f:metadata>
+    </h:head>
+    
+    <h:body>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h:link value="BookstoreApp" outcome="/index" styleClass="logo"/>
+                
+                <nav>
+                    <ul class="nav-links">
+                        <li><h:link value="Home" outcome="/index"/></li>
+                        <li><h:link value="Books" outcome="/books"/></li>
+                        <li><h:link value="Dashboard" outcome="dashboard"/></li>
+                        <li><h:link value="Cart (#{orderController.cartSize})" outcome="cart"/></li>
+                        <li>
+                            <h:form style="display: inline;">
+                                <h:commandLink value="Logout (#{loginController.currentUsername})" 
+                                             action="#{loginController.logout}" 
+                                             styleClass="nav-link"/>
+                            </h:form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <h:messages globalOnly="true"/>
+            
+            <h1 class="page-title">My Orders</h1>
+            
+            <!-- Orders List -->
+            <h:panelGroup rendered="#{not empty orderController.userOrders}">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Order History (#{orderController.userOrders.size()} orders)</h2>
+                    </div>
+                    
+                    <ui:repeat value="#{orderController.userOrders}" var="order">
+                        <div style="border-bottom: 1px solid #e9ecef; padding: 1.5rem 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                <div>
+                                    <h3 style="margin: 0; color: #333;">Order ##{order.id}</h3>
+                                    <p style="margin: 0.25rem 0; color: #6c757d;">
+                                        <h:outputText value="#{order.orderDate}">
+                                            <f:convertDateTime pattern="MMMM dd, yyyy 'at' HH:mm"/>
+                                        </h:outputText>
+                                    </p>
+                                </div>
+                                
+                                <div style="text-align: right;">
+                                    <div style="font-size: 1.25rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">
+                                        $#{order.totalAmount}
+                                    </div>
+                                    <span style="padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.875rem; font-weight: 500;
+                                               background-color: #{order.status eq 'COMPLETED' ? '#d4edda' : order.status eq 'PENDING' ? '#fff3cd' : '#f8d7da'}; 
+                                               color: #{order.status eq 'COMPLETED' ? '#155724' : order.status eq 'PENDING' ? '#856404' : '#721c24'};">
+                                        #{order.status}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- Order Items -->
+                            <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem;">
+                                <h4 style="margin: 0 0 1rem 0; color: #495057;">Items Ordered (#{order.totalItems} items)</h4>
+                                
+                                <div class="table-responsive">
+                                    <table class="table" style="margin: 0; background: white;">
+                                        <thead>
+                                            <tr>
+                                                <th>Book</th>
+                                                <th>Author</th>
+                                                <th>Price</th>
+                                                <th>Quantity</th>
+                                                <th>Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <ui:repeat value="#{order.orderItems}" var="item">
+                                                <tr>
+                                                    <td>
+                                                        <strong>#{item.book.title}</strong><br/>
+                                                        <small style="color: #6c757d;">#{item.book.genre.genreName}</small>
+                                                    </td>
+                                                    <td>#{item.book.author}</td>
+                                                    <td>$#{item.price}</td>
+                                                    <td>#{item.quantity}</td>
+                                                    <td><strong>$#{item.subtotal}</strong></td>
+                                                </tr>
+                                            </ui:repeat>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </div>
+            </h:panelGroup>
+            
+            <!-- No Orders Message -->
+            <h:panelGroup rendered="#{empty orderController.userOrders}">
+                <div class="card">
+                    <div style="text-align: center; padding: 3rem;">
+                        <h3>No orders found</h3>
+                        <p>You haven't placed any orders yet. Start shopping to see your orders here!</p>
+                        <h:link value="Browse Books" outcome="/books" styleClass="btn btn-primary" style="margin-right: 1rem;"/>
+                        <h:link value="Go to Dashboard" outcome="dashboard" styleClass="btn btn-secondary"/>
+                    </div>
+                </div>
+            </h:panelGroup>
+            
+            <!-- Back to Shopping -->
+            <h:panelGroup rendered="#{not empty orderController.userOrders}">
+                <div style="text-align: center; margin-top: 2rem;">
+                    <h:link value="Continue Shopping" outcome="/books" styleClass="btn btn-primary" style="margin-right: 1rem;"/>
+                    <h:link value="Back to Dashboard" outcome="dashboard" styleClass="btn btn-secondary"/>
+                </div>
+            </h:panelGroup>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 BookstoreApp. Simple bookstore for academic project.</p>
+        </footer>
+    </h:body>
+</html>

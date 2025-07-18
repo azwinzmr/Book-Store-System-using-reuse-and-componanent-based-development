@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    
+    <h:head>
+        <title>BookstoreApp - Shopping Cart</title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </h:head>
+    
+    <h:body>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h:link value="BookstoreApp" outcome="/index" styleClass="logo"/>
+                
+                <nav>
+                    <ul class="nav-links">
+                        <li><h:link value="Home" outcome="/index"/></li>
+                        <li><h:link value="Books" outcome="/books"/></li>
+                        <li><h:link value="My Orders" outcome="orders"/></li>
+                        <li><h:link value="Cart (#{orderController.cartSize})" outcome="cart"/></li>
+                        <li>
+                            <h:form style="display: inline;">
+                                <h:commandLink value="Logout (#{loginController.currentUsername})" 
+                                             action="#{loginController.logout}" 
+                                             styleClass="nav-link"/>
+                            </h:form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <h:messages globalOnly="true"/>
+            
+            <h1 class="page-title">Shopping Cart</h1>
+            
+            <!-- Cart Items -->
+            <h:panelGroup rendered="#{not orderController.cartEmpty}">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Your Items (#{orderController.cartSize} items)</h2>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Author</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat value="#{orderController.cartItems}" var="item">
+                                    <tr>
+                                        <td>
+                                            <strong>#{item.book.title}</strong><br/>
+                                            <small class="book-genre">#{item.book.genre.genreName}</small>
+                                        </td>
+                                        <td>#{item.book.author}</td>
+                                        <td>$#{item.book.price}</td>
+                                        <td>
+                                            <h:form style="display: inline;">
+                                                <h:inputText value="#{item.quantity}" 
+                                                           style="width: 60px; text-align: center;"
+                                                           onchange="this.form.submit();">
+                                                    <f:ajax listener="#{orderController.updateCartQuantity(item.book.id, item.quantity)}" 
+                                                          render="@form :cartTotal"/>
+                                                </h:inputText>
+                                            </h:form>
+                                        </td>
+                                        <td><strong>$#{item.subtotal}</strong></td>
+                                        <td>
+                                            <h:form style="display: inline;">
+                                                <h:commandButton value="Remove" 
+                                                               action="#{orderController.removeFromCart(item.book.id)}" 
+                                                               styleClass="btn btn-danger btn-sm"
+                                                               onclick="return confirm('Remove this item from cart?')"/>
+                                            </h:form>
+                                        </td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Cart Summary -->
+                <div class="cart-summary" id="cartTotal">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3>Total: <span class="cart-total">$#{orderController.cartTotal}</span></h3>
+                            <p>#{orderController.cartSize} items in your cart</p>
+                        </div>
+                        <div>
+                            <h:form style="display: inline;">
+                                <h:commandButton value="Clear Cart" 
+                                               action="#{orderController.clearCart}" 
+                                               styleClass="btn btn-secondary"
+                                               onclick="return confirm('Clear all items from cart?')"/>
+                            </h:form>
+                            
+                            <h:form style="display: inline; margin-left: 1rem;">
+                                <h:commandButton value="Proceed to Checkout" 
+                                               action="#{orderController.checkout}" 
+                                               styleClass="btn btn-primary"
+                                               style="font-size: 1.1rem; padding: 1rem 2rem;"/>
+                            </h:form>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+            
+            <!-- Empty Cart Message -->
+            <h:panelGroup rendered="#{orderController.cartEmpty}">
+                <div class="card">
+                    <div style="text-align: center; padding: 3rem;">
+                        <h3>Your cart is empty</h3>
+                        <p>Browse our collection and add some books to your cart.</p>
+                        <h:link value="Browse Books" outcome="/books" styleClass="btn btn-primary"/>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 BookstoreApp. Simple bookstore for academic project.</p>
+        </footer>
+    </h:body>
+</html>
